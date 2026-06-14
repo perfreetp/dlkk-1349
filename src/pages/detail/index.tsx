@@ -3,7 +3,7 @@ import { View, Text, Swiper, SwiperItem, Image, Button, ScrollView } from '@taro
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { mockLocations } from '@/data/mockLocations';
-import type { Location, LocationComment } from '@/types/location';
+import type { Location, LocationComment, LocationActivity, ActivityType } from '@/types/location';
 import {
   formatDistance,
   formatCrowdLevel,
@@ -18,6 +18,7 @@ import { useUserStore } from '@/store/userStore';
 import styles from './index.module.scss';
 
 const COMMENT_PREVIEW_COUNT = 3;
+const ACTIVITY_PREVIEW_COUNT = 5;
 
 const DetailPage: React.FC = () => {
   const router = useRouter();
@@ -36,9 +37,13 @@ const DetailPage: React.FC = () => {
   const isCommentLiked = useUserStore(state => state.isCommentLiked);
   const getCommentLikesCount = useUserStore(state => state.getCommentLikesCount);
   const deleteMyComment = useUserStore(state => state.deleteMyComment);
+  const getActivitiesByLocation = useUserStore(state => state.getActivitiesByLocation);
+  const getLocationStats = useUserStore(state => state.getLocationStats);
 
   const [commentSort, setCommentSort] = useState<'latest' | 'useful'>('latest');
   const [showAllComments, setShowAllComments] = useState(false);
+  const [showAllActivities, setShowAllActivities] = useState(false);
+  const [scrollIntoView, setScrollIntoView] = useState('');
   const [, forceUpdate] = useState(0);
 
   useDidShow(() => {
@@ -51,6 +56,11 @@ const DetailPage: React.FC = () => {
   const totalCommentCount = location ? getCommentCountByLocation(location.id) : 0;
   const displayComments = showAllComments ? allComments : allComments.slice(0, COMMENT_PREVIEW_COUNT);
   const hasMoreComments = allComments.length > COMMENT_PREVIEW_COUNT;
+
+  const allActivities = location ? getActivitiesByLocation(location.id) : [];
+  const locationStats = location ? getLocationStats(location.id) : { comments: 0, checkIns: 0, favorites: 0 };
+  const displayActivities = showAllActivities ? allActivities : allActivities.slice(0, ACTIVITY_PREVIEW_COUNT);
+  const hasMoreActivities = allActivities.length > ACTIVITY_PREVIEW_COUNT;
 
   if (!location) {
     return (
@@ -136,9 +146,42 @@ const DetailPage: React.FC = () => {
 
   const isFav = isFavorite(location.id);
 
+  const getActivityIcon = (type: ActivityType) => {
+    const icons: Record<ActivityType, string> = {
+      comment: '💬',
+      checkin: '📌',
+      favorite: '❤️',
+      like: '👍',
+    };
+    return icons[type] || '📝';
+  };
+
+  const getActivityLabel = (type: ActivityType) => {
+    const labels: Record<ActivityType, string> = {
+      comment: '发表了评价',
+      checkin: '打卡了这里',
+      favorite: '收藏了这里',
+      like: '点了赞',
+    };
+    return labels[type] || '有新动态';
+  };
+
+  const handleActivityClick = (activity: LocationActivity) => {
+    if (activity.type === 'comment') {
+      setScrollIntoView('comments-section');
+      setTimeout(() => setScrollIntoView(''), 100);
+      Taro.showToast({ title: '已跳转到评价区', icon: 'none' });
+    } else if (activity.type === 'checkin') {
+      Taro.showToast({ title: '打卡记录', icon: 'none' });
+    } else if (activity.type === 'favorite') {
+      Taro.showToast({ title: '收藏记录', icon: 'none' });
+    }
+    console.log('[DetailPage] Activity clicked:', activity);
+  };
+
   return (
     <View className={styles.page}>
-      <ScrollView scrollY>
+      <ScrollView scrollY scroll-into-view={scrollIntoView} scroll-with-animation>
         <Swiper
           className={styles.photoSwiper}
           indicatorDots
@@ -259,7 +302,7 @@ const DetailPage: React.FC = () => {
             </View>
           </View>
 
-          <View className={styles.commentsSection}>
+          <View className={styles.commentsSection} id="comments-section">
             <View className={styles.commentsHeader}>
               <Text className={styles.sectionTitle}>💬 同学评价 ({totalCommentCount})</Text>
               {totalCommentCount > 0 && (
@@ -349,6 +392,79 @@ const DetailPage: React.FC = () => {
             >
               ✍️ 写评价
             </Button>
+          </View>
+
+          <View className={styles.activitySection} id="activity-section">
+            <View className={styles.activityHeader}>
+              <Text className={styles.sectionTitle}>📜 地点动态</Text>
+              <View className={styles.activityStats}>
+                <View className={styles.activityStatItem}>
+                  <Text className={styles.activityStatNum}>{locationStats.comments}</Text>
+                  <Text className={styles.activityStatLabel}>评价</Text>
+                </View>
+                <View className={styles.activityStatItem}>
+                  <Text className={styles.activityStatNum}>{locationStats.checkIns}</Text>
+                  <Text className={styles.activityStatLabel}>打卡</Text>
+                </View>
+                <View className={styles.activityStatItem}>
+                  <Text className={styles.activityStatNum}>{locationStats.favorites}</Text>
+                  <Text className={styles.activityStatLabel}>收藏</Text>
+                </View>
+              </View>
+            </View>
+
+            {displayActivities.length > 0 ? (
+              <View className={styles.timeline}>
+                {displayActivities.map((activity, index) => (
+                  <View
+                    key={activity.id}
+                    className={classnames(
+                      styles.timelineItem,
+                      index === displayActivities.length - 1 && styles.timelineItemLast
+                    )}
+                    onClick={() => handleActivityClick(activity)}
+                  >
+                    <View className={styles.timelineDot}>
+                      <Text className={styles.timelineIcon}>
+                        {getActivityIcon(activity.type)}
+                      </Text>
+                    </View>
+                    <View className={styles.timelineLine} />
+                    <View className={styles.timelineContent}>
+                      <View className={styles.timelineHeader}>
+                        <Text className={styles.timelineUser}>
+                          {activity.userName}
+                          {activity.isMine && <Text className={styles.timelineMine}> (我)</Text>}
+                        </Text>
+                        <Text className={styles.timelineTime}>{activity.time}</Text>
+                      </View>
+                      <Text className={styles.timelineAction}>
+                        {getActivityLabel(activity.type)}
+                      </Text>
+                      {activity.content && (
+                        <Text className={styles.timelineText}>"{activity.content}"</Text>
+                      )}
+                      {activity.rating && (
+                        <Text className={styles.timelineRating}>
+                          {'⭐'.repeat(activity.rating)}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+
+                {hasMoreActivities && (
+                  <Button
+                    className={styles.showMoreBtn}
+                    onClick={() => setShowAllActivities(!showAllActivities)}
+                  >
+                    {showAllActivities ? '收起动态' : `查看全部 ${allActivities.length} 条动态 ↓`}
+                  </Button>
+                )}
+              </View>
+            ) : (
+              <Empty text="暂无动态，来创造第一条吧" icon="📜" />
+            )}
           </View>
         </View>
       </ScrollView>

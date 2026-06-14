@@ -427,3 +427,167 @@
     transform: scale(0.98);
   }
 }
+
+.activitySection {
+  margin-bottom: $spacing-lg;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.activityStats {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.activityStatItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  background-color: $color-bg-page;
+  border-radius: $radius-sm;
+  min-width: 72rpx;
+}
+
+.activityStatNum {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.2;
+}
+
+.activityStatLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 0;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: $spacing-lg;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.timelineItemLast {
+  padding-bottom: 0;
+
+  .timelineLine {
+    display: none;
+  }
+}
+
+.timelineDot {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  background-color: $color-bg-card;
+  border: 4rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  box-shadow: $shadow-card;
+}
+
+.timelineIcon {
+  font-size: 28rpx;
+}
+
+.timelineLine {
+  position: absolute;
+  left: 30rpx;
+  top: 64rpx;
+  width: 4rpx;
+  bottom: 0;
+  background-color: $color-border;
+  z-index: 1;
+}
+
+.timelineContent {
+  flex: 1;
+  margin-left: $spacing-md;
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  min-width: 0;
+}
+
+.timelineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.timelineUser {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.timelineMine {
+  color: $color-primary;
+}
+
+.timelineTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+  margin-left: $spacing-sm;
+}
+
+.timelineAction {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.timelineText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.6;
+  @include text-ellipsis-multi(3);
+  font-style: italic;
+}
+
+.timelineRating {
+  font-size: $font-size-xs;
+  color: $color-warning;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.showMoreBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-md;
+  background-color: $color-bg-tag;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-top: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    background-color: $color-border;
+  }
+}

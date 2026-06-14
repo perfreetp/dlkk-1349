@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Button, Input, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -18,6 +18,8 @@ const MapPage: React.FC = () => {
   const [zoom, setZoom] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [showRoute, setShowRoute] = useState(false);
+  const [routeLocations, setRouteLocations] = useState<Location[]>([]);
 
   const isFavorite = useUserStore(state => state.isFavorite);
   const toggleFavorite = useUserStore(state => state.toggleFavorite);
@@ -99,6 +101,7 @@ const MapPage: React.FC = () => {
 
   const handleMarkerClick = (location: Location) => {
     setSelectedLocation(location);
+    setShowRoute(false);
     console.log('[MapPage] Marker clicked:', location.name);
   };
 
@@ -136,8 +139,7 @@ const MapPage: React.FC = () => {
   const handleToggleFavorite = (loc?: Location) => {
     const target = loc || selectedLocation;
     if (!target) return;
-    toggleFavorite(target.id);
-    const newState = !isFavorite(target.id);
+    const newState = toggleFavorite(target.id);
     Taro.showToast({
       title: newState ? '已加入收藏' : '已取消收藏',
       icon: 'none',
@@ -193,6 +195,85 @@ const MapPage: React.FC = () => {
     return filteredLocations.slice(0, 8);
   }, [filteredLocations, searchFocused, searchText]);
 
+  const handleGenerateRoute = () => {
+    if (filteredLocations.length === 0) {
+      Taro.showToast({ title: '当前筛选没有地点', icon: 'none' });
+      return;
+    }
+
+    const favs = filteredLocations.filter(loc => isFavorite(loc.id));
+    const others = filteredLocations.filter(loc => !isFavorite(loc.id));
+
+    const routePoints: Location[] = [];
+
+    if (favs.length > 0) {
+      routePoints.push(...favs);
+    }
+
+    const remaining = Math.min(5 - routePoints.length, others.length);
+    if (remaining > 0) {
+      const shuffled = [...others].sort(() => Math.random() - 0.5);
+      routePoints.push(...shuffled.slice(0, remaining));
+    }
+
+    const sorted = [...routePoints].sort((a, b) => {
+      const posA = getMarkerPosition(a);
+      const posB = getMarkerPosition(b);
+      return posA.x - posB.x;
+    });
+
+    setRouteLocations(sorted);
+    setShowRoute(true);
+    setSelectedLocation(null);
+    console.log('[MapPage] Route generated:', sorted.length, 'points');
+  };
+
+  const handleCloseRoute = () => {
+    setShowRoute(false);
+    setRouteLocations([]);
+  };
+
+  const handleRouteItemClick = (loc: Location, index: number) => {
+    setSelectedLocation(loc);
+    console.log('[MapPage] Route item clicked:', loc.name, index);
+  };
+
+  const handleNavigateAll = () => {
+    if (routeLocations.length > 0) {
+      const first = routeLocations[0];
+      Taro.openLocation({
+        latitude: first.latitude,
+        longitude: first.longitude,
+        name: first.name,
+        address: first.address,
+        scale: 18,
+      });
+      Taro.showToast({
+        title: `开始探索！共${routeLocations.length}个地点`,
+        icon: 'none',
+      });
+    }
+  };
+
+  const totalDistance = useMemo(() => {
+    if (routeLocations.length < 2) return 0;
+    let total = 0;
+    for (let i = 0; i < routeLocations.length - 1; i++) {
+      total += routeLocations[i].distance;
+    }
+    return Math.round(total * 10) / 10;
+  }, [routeLocations]);
+
+  const routePathD = useMemo(() => {
+    if (routeLocations.length < 2) return '';
+    return routeLocations
+      .map(loc => {
+        const pos = getMarkerPosition(loc);
+        return `${pos.x}% ${pos.y}%`;
+      })
+      .join(', ');
+  }, [routeLocations]);
+
   const selLoc = selectedLocation;
   const selIsFav = selLoc ? isFavorite(selLoc.id) : false;
 
@@ -204,6 +285,28 @@ const MapPage: React.FC = () => {
             {generateGridCells()}
           </View>
         </View>
+
+        {showRoute && routeLocations.length >= 2 && (
+          <View className={styles.routePath}>
+            <svg
+              className={styles.routeSvg}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <polyline
+                points={routeLocations.map(loc => {
+                  const pos = getMarkerPosition(loc);
+                  return `${pos.x},${pos.y}`;
+                }).join(' ')}
+                fill="none"
+                stroke="#5B8FF9"
+                strokeWidth="0.8"
+                strokeDasharray="2,1"
+                strokeLinecap="round"
+              />
+            </svg>
+          </View>
+        )}
 
         <View className={styles.searchBarWrapper}>
           <View className={styles.searchBar}>
@@ -229,7 +332,6 @@ const MapPage: React.FC = () => {
               <ScrollView scrollY className={styles.searchResultsScroll}>
                 {searchResults.length > 0 ? (
                   searchResults.map((loc) => {
-                    const pos = getMarkerPosition(loc);
                     return (
                       <View
                         key={loc.id}
@@ -294,6 +396,7 @@ const MapPage: React.FC = () => {
               onClick={() => {
                 setCategory(cat.key);
                 setSelectedLocation(null);
+                setShowRoute(false);
               }}
             >
               <Text className={styles.filterChipIcon}>{cat.icon}</Text>
@@ -310,17 +413,21 @@ const MapPage: React.FC = () => {
           const pos = getMarkerPosition(location);
           const isSelected = selLoc?.id === location.id;
           const isFav = isFavorite(location.id);
+          const routeIndex = routeLocations.findIndex(r => r.id === location.id);
+          const isOnRoute = showRoute && routeIndex >= 0;
           return (
             <View
               key={location.id}
               className={classnames(
                 styles.marker,
-                isSelected && styles.markerSelected
+                isSelected && styles.markerSelected,
+                isOnRoute && styles.markerOnRoute
               )}
               style={{
                 left: `${pos.x}%`,
                 top: `${pos.y}%`,
                 transform: `translate(-50%, -100%) scale(${zoom})`,
+                zIndex: isOnRoute ? 25 : (isSelected ? 20 : 10),
               }}
               onClick={() => handleMarkerClick(location)}
             >
@@ -336,6 +443,11 @@ const MapPage: React.FC = () => {
                 {isFav && (
                   <View className={styles.markerFavBadge}>
                     <Text>❤️</Text>
+                  </View>
+                )}
+                {isOnRoute && (
+                  <View className={styles.markerRouteBadge}>
+                    <Text>{routeIndex + 1}</Text>
                   </View>
                 )}
                 <View
@@ -373,6 +485,83 @@ const MapPage: React.FC = () => {
         >
           <Text>📍</Text>
         </View>
+
+        <View
+          className={styles.routeBtn}
+          onClick={handleGenerateRoute}
+        >
+          <Text>🗺️</Text>
+          <Text className={styles.routeBtnText}>生成路线</Text>
+        </View>
+
+        {showRoute && (
+          <View className={styles.routePanel}>
+            <View className={styles.routePanelHeader}>
+              <View className={styles.routePanelTitle}>
+                <Text className={styles.routePanelIcon}>🗺️</Text>
+                <Text className={styles.routePanelName}>校园探索路线</Text>
+              </View>
+              <View className={styles.routePanelStats}>
+                <Text className={styles.routePanelStat}>
+                  <Text className={styles.routePanelStatNum}>{routeLocations.length}</Text>
+                  <Text className={styles.routePanelStatLabel}>个地点</Text>
+                </Text>
+                <Text className={styles.routePanelDivider}>·</Text>
+                <Text className={styles.routePanelStat}>
+                  <Text className={styles.routePanelStatNum}>约{totalDistance}</Text>
+                  <Text className={styles.routePanelStatLabel}>公里</Text>
+                </Text>
+              </View>
+              <View className={styles.routeCloseBtn} onClick={handleCloseRoute}>
+                <Text>×</Text>
+              </View>
+            </View>
+
+            <ScrollView scrollX className={styles.routeItemsScroll}>
+              <View className={styles.routeItems}>
+                {routeLocations.map((loc, index) => (
+                  <View
+                    key={loc.id}
+                    className={classnames(
+                      styles.routeItem,
+                      selLoc?.id === loc.id && styles.routeItemActive
+                    )}
+                    onClick={() => handleRouteItemClick(loc, index)}
+                  >
+                    <View className={styles.routeItemIndex}>
+                      <Text>{index + 1}</Text>
+                    </View>
+                    <View className={styles.routeItemInfo}>
+                      <Text className={styles.routeItemName}>{loc.name}</Text>
+                      <View className={styles.routeItemMeta}>
+                        <Tag text={formatCategory(loc.category)} type={getTagType(loc.category)} />
+                        {isFavorite(loc.id) && <Text className={styles.routeItemFav}>❤️</Text>}
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+
+            <View className={styles.routeActions}>
+              <Button
+                className={classnames(styles.routeActionBtn, styles.routeActionBtnSecondary)}
+                onClick={() => {
+                  setShowRoute(false);
+                  setRouteLocations([]);
+                }}
+              >
+                取消
+              </Button>
+              <Button
+                className={classnames(styles.routeActionBtn, styles.routeActionBtnPrimary)}
+                onClick={handleNavigateAll}
+              >
+                🧭 开始探索
+              </Button>
+            </View>
+          </View>
+        )}
 
         <View
           className={classnames(

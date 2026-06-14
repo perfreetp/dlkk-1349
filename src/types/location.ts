@@ -67,12 +67,28 @@ export interface UserCheckIn {
   locationName: string;
   checkInTime: string;
   stampUrl: string;
+  isMine?: boolean;
 }
 
 export interface UserFavorite {
   id: string;
   locationId: string;
   addTime: string;
+  isMine?: boolean;
+}
+
+export type ActivityType = 'comment' | 'checkin' | 'favorite' | 'like';
+
+export interface LocationActivity {
+  id: string;
+  type: ActivityType;
+  locationId: string;
+  locationName: string;
+  time: string;
+  content?: string;
+  rating?: number;
+  userName?: string;
+  isMine: boolean;
 }
 
 export interface SubmittedLocation {

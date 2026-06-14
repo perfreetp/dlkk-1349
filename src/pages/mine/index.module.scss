@@ -495,3 +495,292 @@
     background-color: $color-border;
   }
 }
+
+.viewModeToggle {
+  display: flex;
+  background-color: $color-bg-tag;
+  border-radius: $radius-button;
+  padding: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.viewModeTab {
+  flex: 1;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.viewModeTabActive {
+  background-color: $color-bg-card;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  box-shadow: $shadow-card;
+}
+
+.locationView {
+  padding-top: $spacing-xs;
+}
+
+.locationCardList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.locationCard {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+  transition: all $transition-base;
+}
+
+.locationCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  transition: all $transition-base;
+
+  &:active {
+    background-color: $color-bg-hover;
+  }
+}
+
+.locationCardLeft {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.locationCardIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.locationCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.locationCardName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  margin-bottom: 6rpx;
+}
+
+.locationCardMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.locationCardDistance {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.locationCardStats {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.locStatItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56rpx;
+}
+
+.locStatNum {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.2;
+}
+
+.locStatLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.expandArrow {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+  transition: transform $transition-base;
+}
+
+.expandArrowUp {
+  transform: rotate(-90deg);
+}
+
+.locationCardDetail {
+  padding: 0 $spacing-lg $spacing-lg;
+  border-top: 2rpx solid $color-bg-page;
+  background-color: $color-bg-secondary;
+}
+
+.locDetailActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding-top: $spacing-md;
+}
+
+.locDetailBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background-color: $color-bg-tag;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.locDetailBtnActive {
+  background-color: rgba(232, 100, 82, 0.1);
+  color: $color-error;
+}
+
+.locDetailSection {
+  margin-bottom: $spacing-md;
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.locDetailSectionTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.locCommentItem {
+  padding: $spacing-sm 0;
+  border-bottom: 2rpx solid $color-bg-page;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.locCommentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.locCommentRating {
+  font-size: $font-size-xs;
+  color: $color-warning;
+}
+
+.locCommentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.locCommentContent {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  @include text-ellipsis-multi(2);
+  margin-bottom: $spacing-xs;
+}
+
+.locCommentActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.locCheckinList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.locCheckinItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-xs;
+  background-color: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.locCheckinThumb {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-sm;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.locCheckinInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.locCheckinTime {
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+  margin-bottom: 2rpx;
+}
+
+.locCheckinDesc {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.locMoreText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: center;
+  margin-top: $spacing-sm;
+  display: block;
+}
+
+.locFavTime {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

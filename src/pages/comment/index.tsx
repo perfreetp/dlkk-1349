@@ -78,6 +78,10 @@ const CommentPage: React.FC = () => {
     setSubmitting(true);
     try {
       const newComment = addComment(locationId, rating, content.trim());
+      if (!newComment) {
+        console.log('[CommentPage] Duplicate comment, staying on page');
+        return;
+      }
       console.log('[CommentPage] Comment saved:', newComment);
       Taro.showToast({ title: '评价成功！', icon: 'success' });
       setTimeout(() => Taro.navigateBack(), 1000);
