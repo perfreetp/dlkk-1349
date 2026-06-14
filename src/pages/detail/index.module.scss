@@ -1,0 +1,374 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 140rpx;
+}
+
+.photoSwiper {
+  width: 100%;
+  height: 400rpx;
+  background-color: $color-bg-tag;
+}
+
+.photoItem {
+  width: 100%;
+  height: 100%;
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.header {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  flex: 1;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-right: $spacing-md;
+}
+
+.verifiedBadge {
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  background-color: rgba(91, 143, 249, 0.1);
+  color: $color-primary;
+  font-size: $font-size-xs;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.rating {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+  margin-right: $spacing-sm;
+}
+
+.ratingStars {
+  margin-right: $spacing-sm;
+}
+
+.reviewCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-md;
+}
+
+.desc {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+}
+
+.infoSection {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.infoValueGreen {
+  color: $color-success;
+}
+
+.infoValueOrange {
+  color: $color-warning;
+}
+
+.infoValueRed {
+  color: $color-error;
+}
+
+.addressRow {
+  display: flex;
+  align-items: center;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.addressIcon {
+  font-size: $font-size-lg;
+  margin-right: $spacing-sm;
+}
+
+.addressText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.navBtn {
+  @include button-reset;
+  height: $button-height-sm;
+  padding: 0 $spacing-lg;
+  background-color: $color-primary;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.recommendSection {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.recommendCard {
+  background: linear-gradient(135deg, rgba(91, 143, 249, 0.1) 0%, rgba(90, 216, 166, 0.1) 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.recommendIcon {
+  font-size: $font-size-lg;
+  margin-bottom: $spacing-xs;
+}
+
+.recommendText {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+}
+
+.commentsSection {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.commentItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  background-color: $color-bg-tag;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  margin-right: $spacing-sm;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 2rpx;
+}
+
+.commentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.commentRating {
+  font-size: $font-size-sm;
+  color: $color-warning;
+}
+
+.commentContent {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-sm;
+}
+
+.commentFooter {
+  display: flex;
+  align-items: center;
+}
+
+.likeBtn {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.likeIcon {
+  margin-right: 4rpx;
+}
+
+.addCommentBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-md;
+  background-color: $color-bg-hover;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-top: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    background-color: $color-border;
+  }
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
+  background-color: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.actionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100rpx;
+  margin-right: $spacing-lg;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+.actionIcon {
+  font-size: 40rpx;
+  margin-bottom: 4rpx;
+}
+
+.actionText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.actionTextActive {
+  color: $color-primary;
+}
+
+.primaryBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.secondaryBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background-color: $color-bg-tag;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  margin-right: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}

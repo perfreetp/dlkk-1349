@@ -1,0 +1,44 @@
+@use '@/styles/variables.scss' as *;
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $page-padding;
+  background-color: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.filterItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64rpx;
+  border-radius: $radius-button;
+  margin-right: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background-color: $color-bg-tag;
+  transition: all $transition-base;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.filterItemActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+}
+
+.filterIcon {
+  margin-right: $spacing-xs;
+  font-size: $font-size-sm;
+}

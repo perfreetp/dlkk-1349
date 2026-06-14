@@ -1,0 +1,185 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e8f0fe 0%, $color-bg-page 30%);
+}
+
+.header {
+  padding: $spacing-lg $page-padding;
+  padding-top: 48rpx;
+}
+
+.greeting {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-lg;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 0 $spacing-lg;
+  height: 88rpx;
+  box-shadow: $shadow-card;
+}
+
+.searchIcon {
+  font-size: $font-size-lg;
+  margin-right: $spacing-sm;
+}
+
+.searchInput {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.searchPlaceholder {
+  color: $color-text-tertiary;
+}
+
+.categorySection {
+  padding: 0 $page-padding;
+  margin-bottom: $spacing-lg;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.titleText {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.moreText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md 0;
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.categoryIcon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.iconStudy {
+  background-color: rgba(90, 216, 166, 0.15);
+}
+
+.iconFood {
+  background-color: rgba(246, 189, 22, 0.15);
+}
+
+.iconActivity {
+  background-color: rgba(232, 100, 82, 0.15);
+}
+
+.iconWalk {
+  background-color: rgba(91, 143, 249, 0.15);
+}
+
+.categoryName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.categoryCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.hotSection {
+  padding: 0 $page-padding;
+  padding-bottom: 120rpx;
+}
+
+.hotBanner {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  color: $color-text-white;
+}
+
+.bannerTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+}
+
+.bannerDesc {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.locationList {
+  margin-top: $spacing-md;
+}
+
+.mapPlaceholder {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.mapIcon {
+  font-size: 80rpx;
+  margin-bottom: $spacing-md;
+}
+
+.mapText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.mapTip {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

@@ -1,0 +1,124 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: 120rpx;
+}
+
+.stats {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  margin-bottom: $spacing-lg;
+  color: $color-text-white;
+  text-align: center;
+}
+
+.statsNumber {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.statsLabel {
+  font-size: $font-size-md;
+  opacity: 0.9;
+}
+
+.stampSection {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.stampGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: $spacing-md;
+}
+
+.stampItem {
+  aspect-ratio: 1;
+  border-radius: $radius-md;
+  background-color: $color-bg-tag;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+}
+
+.stampItemCollected {
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-primary 100%);
+}
+
+.stampIcon {
+  font-size: 36rpx;
+  margin-bottom: 4rpx;
+}
+
+.stampText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.stampTextCollected {
+  color: $color-text-white;
+}
+
+.historySection {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.checkinItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.checkinStamp {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+}
+
+.checkinInfo {
+  flex: 1;
+}
+
+.checkinName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.checkinTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.checkinArrow {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+}

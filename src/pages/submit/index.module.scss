@@ -1,0 +1,253 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: 120rpx;
+}
+
+.tipCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  color: $color-text-white;
+  margin-bottom: $spacing-lg;
+}
+
+.tipTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+}
+
+.tipText {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.form {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.formLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.required {
+  color: $color-error;
+  margin-left: $spacing-xs;
+}
+
+.formInput {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 $spacing-md;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background-color: $color-bg-hover;
+  box-sizing: border-box;
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: $spacing-md;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background-color: $color-bg-hover;
+  box-sizing: border-box;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.categoryOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md 0;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  background-color: $color-bg-hover;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.categoryOptionActive {
+  border-color: $color-primary;
+  background-color: rgba(91, 143, 249, 0.1);
+}
+
+.categoryIcon {
+  font-size: 40rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.categoryName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.categoryNameActive {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tagOption {
+  padding: $spacing-sm $spacing-md;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background-color: $color-bg-hover;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.tagOptionActive {
+  border-color: $color-primary;
+  background-color: $color-primary;
+  color: $color-text-white;
+}
+
+.submitBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-top: $spacing-xl;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.submitBtnDisabled {
+  background: $color-text-disabled;
+}
+
+.mySubmissions {
+  margin-top: $spacing-xl;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.submissionCard {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.submissionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.submissionName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.statusPending {
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  background-color: rgba(255, 125, 0, 0.1);
+  color: $color-warning;
+}
+
+.statusApproved {
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  background-color: rgba(0, 180, 42, 0.1);
+  color: $color-success;
+}
+
+.statusRejected {
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  background-color: rgba(245, 63, 63, 0.1);
+  color: $color-error;
+}
+
+.submissionDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.submissionTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.anonymousTip {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background-color: rgba(90, 216, 166, 0.1);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+}
+
+.anonymousIcon {
+  font-size: $font-size-lg;
+  margin-right: $spacing-sm;
+}
+
+.anonymousText {
+  font-size: $font-size-sm;
+  color: $color-secondary-green;
+}

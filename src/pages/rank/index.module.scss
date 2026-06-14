@@ -1,0 +1,132 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+}
+
+.categoryTabs {
+  display: flex;
+  padding: $spacing-md $page-padding;
+  background-color: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+  @include scroll-x-container;
+  overflow-x: auto;
+}
+
+.tabItem {
+  @include scroll-x-item(auto);
+  padding: $spacing-sm $spacing-lg;
+  margin-right: $spacing-sm;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  background-color: $color-bg-tag;
+  white-space: nowrap;
+  transition: all $transition-base;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.tabItemActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.content {
+  padding: 0 $page-padding;
+  padding-bottom: 120rpx;
+}
+
+.locationList {
+  margin-top: $spacing-md;
+}
+
+.hotRankItem {
+  display: flex;
+  align-items: center;
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.99);
+  }
+}
+
+.rankNumber {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.rankTop1 {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+}
+
+.rankTop2 {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%);
+}
+
+.rankTop3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%);
+}
+
+.rankOther {
+  background-color: $color-text-tertiary;
+}
+
+.rankContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.rankTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  margin-bottom: $spacing-xs;
+}
+
+.rankMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.hotScore {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+}
+
+.emptyWrapper {
+  padding-top: $spacing-xl * 2;
+}

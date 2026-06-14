@@ -1,0 +1,40 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 $spacing-sm;
+  height: 40rpx;
+  border-radius: $radius-sm;
+  background-color: $color-bg-tag;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  white-space: nowrap;
+  margin-right: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.tagPrimary {
+  background-color: rgba(91, 143, 249, 0.1);
+  color: $color-primary;
+}
+
+.tagGreen {
+  background-color: rgba(90, 216, 166, 0.1);
+  color: $color-secondary-green;
+}
+
+.tagYellow {
+  background-color: rgba(246, 189, 22, 0.1);
+  color: $color-secondary-yellow;
+}
+
+.tagOrange {
+  background-color: rgba(232, 100, 82, 0.1);
+  color: $color-secondary-orange;
+}
+
+.tagSelected {
+  background-color: $color-primary;
+  color: $color-text-white;
+}
