@@ -575,6 +575,28 @@
   display: block;
 }
 
+.timelineActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-border-light;
+}
+
+.timelineActionBtn {
+  padding: $spacing-xs $spacing-sm;
+  background-color: $color-bg-tag;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    background-color: $color-primary;
+    color: $color-text-white;
+  }
+}
+
 .showMoreBtn {
   @include button-reset;
   width: 100%;

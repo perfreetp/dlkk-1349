@@ -172,11 +172,46 @@ const DetailPage: React.FC = () => {
       setTimeout(() => setScrollIntoView(''), 100);
       Taro.showToast({ title: '已跳转到评价区', icon: 'none' });
     } else if (activity.type === 'checkin') {
-      Taro.showToast({ title: '打卡记录', icon: 'none' });
+      Taro.showActionSheet({
+        itemList: ['🧭 导航到这里', '📄 查看地点详情'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            handleNavigate();
+          } else if (res.tapIndex === 1) {
+            setScrollIntoView('top-section');
+            setTimeout(() => setScrollIntoView(''), 100);
+          }
+        }
+      });
     } else if (activity.type === 'favorite') {
-      Taro.showToast({ title: '收藏记录', icon: 'none' });
+      Taro.showActionSheet({
+        itemList: ['🧭 导航到这里', '📄 查看地点详情', isFav ? '❤️ 取消收藏' : '🤍 加入收藏'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            handleNavigate();
+          } else if (res.tapIndex === 1) {
+            setScrollIntoView('top-section');
+            setTimeout(() => setScrollIntoView(''), 100);
+          } else if (res.tapIndex === 2) {
+            handleFavorite();
+          }
+        }
+      });
     }
     console.log('[DetailPage] Activity clicked:', activity);
+  };
+
+  const handleActivityQuickAction = (e: React.MouseEvent, activity: LocationActivity, action: 'navigate' | 'detail' | 'comment') => {
+    e.stopPropagation();
+    if (action === 'navigate') {
+      handleNavigate();
+    } else if (action === 'detail') {
+      setScrollIntoView('top-section');
+      setTimeout(() => setScrollIntoView(''), 100);
+    } else if (action === 'comment') {
+      Taro.navigateTo({ url: `/pages/comment/index?id=${location.id}` });
+    }
+    console.log('[DetailPage] Activity quick action:', { activity, action });
   };
 
   return (
@@ -203,7 +238,7 @@ const DetailPage: React.FC = () => {
         </Swiper>
 
         <View className={styles.content}>
-          <View className={styles.header}>
+          <View className={styles.header} id="top-section">
             <View className={styles.titleRow}>
               <Text className={styles.title}>{location.name}</Text>
               {location.isVerified && (
@@ -449,6 +484,28 @@ const DetailPage: React.FC = () => {
                           {'⭐'.repeat(activity.rating)}
                         </Text>
                       )}
+                      <View className={styles.timelineActions}>
+                        <View
+                          className={styles.timelineActionBtn}
+                          onClick={(e) => handleActivityQuickAction(e, activity, 'navigate')}
+                        >
+                          <Text>🧭 导航</Text>
+                        </View>
+                        <View
+                          className={styles.timelineActionBtn}
+                          onClick={(e) => handleActivityQuickAction(e, activity, 'detail')}
+                        >
+                          <Text>📄 详情</Text>
+                        </View>
+                        {activity.type === 'comment' && (
+                          <View
+                            className={styles.timelineActionBtn}
+                            onClick={(e) => handleActivityQuickAction(e, activity, 'comment')}
+                          >
+                            <Text>✍️ 写评价</Text>
+                          </View>
+                        )}
+                      </View>
                     </View>
                   </View>
                 ))}
