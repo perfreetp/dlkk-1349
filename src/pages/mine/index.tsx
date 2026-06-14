@@ -70,7 +70,7 @@ const MinePage: React.FC = () => {
         Taro.navigateTo({ url: '/pages/checkin/index' });
         break;
       case 'comment':
-        Taro.navigateTo({ url: '/pages/comment/index' });
+        Taro.navigateTo({ url: '/pages/comment/index?mode=list' });
         break;
       case 'report':
         Taro.showToast({ title: '失效报错功能', icon: 'none' });

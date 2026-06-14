@@ -1,15 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Input, Swiper, SwiperItem } from '@tarojs/components';
-import Taro, { usePullDownRefresh } from '@tarojs/taro';
+import Taro, { usePullDownRefresh, useDidShow } from '@tarojs/taro';
 import { mockLocations } from '@/data/mockLocations';
 import type { Location, LocationCategory } from '@/types/location';
 import { formatCategory } from '@/utils/distance';
 import LocationCard from '@/components/LocationCard';
+import { useUserStore } from '@/store/userStore';
 import styles from './index.module.scss';
 
 const HomePage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const setSearchKeyword = useUserStore(state => state.setSearchKeyword);
+  const setSelectedCategory = useUserStore(state => state.setSelectedCategory);
+  const resetFilter = useUserStore(state => state.resetFilter);
 
   const categories = [
     { key: 'study' as LocationCategory, name: '自习角', icon: '📚', count: 28, color: '#5AD8A6' },
@@ -24,6 +28,11 @@ const HomePage: React.FC = () => {
       .slice(0, 5);
   }, []);
 
+  useDidShow(() => {
+    setSearchText('');
+    console.log('[HomePage] Page did show, reset search text');
+  });
+
   usePullDownRefresh(() => {
     setRefreshing(true);
     setTimeout(() => {
@@ -34,15 +43,26 @@ const HomePage: React.FC = () => {
   });
 
   const handleCategoryClick = (category: LocationCategory) => {
+    resetFilter();
+    setSelectedCategory(category);
+    setSearchKeyword('');
     Taro.switchTab({ url: '/pages/rank/index' });
     console.log('[HomePage] Category clicked:', category);
   };
 
   const handleSearch = () => {
     if (searchText.trim()) {
+      resetFilter();
+      setSelectedCategory('all');
+      setSearchKeyword(searchText.trim());
       Taro.switchTab({ url: '/pages/rank/index' });
       console.log('[HomePage] Search:', searchText);
     }
+  };
+
+  const handleMapClick = () => {
+    Taro.navigateTo({ url: '/pages/map/index' });
+    console.log('[HomePage] Map mode clicked');
   };
 
   const getIconClass = (key: string) => {
@@ -114,7 +134,7 @@ const HomePage: React.FC = () => {
           <Text className={styles.bannerDesc}>同学们都在收藏这些宝藏地点</Text>
         </View>
 
-        <View className={styles.mapPlaceholder} onClick={() => Taro.showToast({ title: '地图功能开发中', icon: 'none' })}>
+        <View className={styles.mapPlaceholder} onClick={handleMapClick}>
           <Text className={styles.mapIcon}>🗺️</Text>
           <Text className={styles.mapText}>地图模式</Text>
           <Text className={styles.mapTip}>点击在地图上查看周边地点</Text>

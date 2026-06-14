@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Swiper, SwiperItem, Image, Button, ScrollView } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { mockLocations } from '@/data/mockLocations';
 import type { Location } from '@/types/location';
@@ -28,8 +28,17 @@ const DetailPage: React.FC = () => {
   const isFavorite = useUserStore((state) => state.isFavorite);
   const toggleFavorite = useUserStore((state) => state.toggleFavorite);
   const addCheckIn = useUserStore((state) => state.addCheckIn);
+  const getCommentsByLocation = useUserStore((state) => state.getCommentsByLocation);
 
   const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
+  const [, forceUpdate] = useState(0);
+
+  useDidShow(() => {
+    forceUpdate(prev => prev + 1);
+    console.log('[DetailPage] Page did show, refresh comments');
+  });
+
+  const comments = location ? getCommentsByLocation(location.id) : [];
 
   if (!location) {
     return (
@@ -224,16 +233,19 @@ const DetailPage: React.FC = () => {
           </View>
 
           <View className={styles.commentsSection}>
-            <Text className={styles.sectionTitle}>💬 同学评价 ({location.comments.length})</Text>
-            {location.comments.length > 0 ? (
-              location.comments.map((comment) => (
+            <Text className={styles.sectionTitle}>💬 同学评价 ({comments.length})</Text>
+            {comments.length > 0 ? (
+              comments.map((comment) => (
                 <View key={comment.id} className={styles.commentItem}>
                   <View className={styles.commentHeader}>
                     <View className={styles.avatar}>
-                      <Text>🙂</Text>
+                      <Text>{comment.isMine ? '�' : '�🙂'}</Text>
                     </View>
                     <View className={styles.userInfo}>
-                      <Text className={styles.userName}>{comment.userName}</Text>
+                      <Text className={styles.userName}>
+                        {comment.userName}
+                        {comment.isMine && <Text className={styles.mineBadge}> (我)</Text>}
+                      </Text>
                       <Text className={styles.commentTime}>{comment.createTime}</Text>
                     </View>
                     <Text className={styles.commentRating}>

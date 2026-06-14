@@ -26,12 +26,14 @@ export interface LocationPhoto {
 
 export interface LocationComment {
   id: string;
+  locationId: string;
   userId: string;
   userName: string;
   content: string;
   rating: number;
   createTime: string;
   likes: number;
+  isMine?: boolean;
 }
 
 export interface Location {

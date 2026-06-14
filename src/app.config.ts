@@ -7,7 +7,8 @@ export default defineAppConfig({
     'pages/detail/index',
     'pages/filter/index',
     'pages/comment/index',
-    'pages/checkin/index'
+    'pages/checkin/index',
+    'pages/map/index'
   ],
   window: {
     backgroundTextStyle: 'light',

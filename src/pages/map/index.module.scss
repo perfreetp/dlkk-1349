@@ -1,0 +1,365 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  display: flex;
+  flex-direction: column;
+}
+
+.mapContainer {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 50%, #fff3e0 100%);
+  overflow: hidden;
+}
+
+.mapBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-lg;
+}
+
+.mapGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(16, 1fr);
+  height: 100%;
+  gap: 4rpx;
+}
+
+.gridCell {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4rpx;
+}
+
+.gridCell:nth-child(3n) {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.gridCellRoad {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.gridCellBuilding {
+  background-color: rgba(180, 200, 220, 0.6) !important;
+}
+
+.gridCellGreen {
+  background-color: rgba(150, 220, 150, 0.5) !important;
+}
+
+.gridCellWater {
+  background-color: rgba(130, 180, 255, 0.6) !important;
+}
+
+.marker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  z-index: 10;
+  transition: all $transition-base;
+
+  &:active {
+    transform: translate(-50%, -100%) scale(0.9);
+  }
+}
+
+.markerSelected {
+  z-index: 20;
+}
+
+.markerPin {
+  width: 64rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.markerIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: $color-text-white;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+}
+
+.markerIconStudy {
+  background: linear-gradient(135deg, #5AD8A6 0%, #2BB673 100%);
+}
+
+.markerIconFood {
+  background: linear-gradient(135deg, #F6BD16 0%, #E6A800 100%);
+}
+
+.markerIconActivity {
+  background: linear-gradient(135deg, #E86452 0%, #D63031 100%);
+}
+
+.markerIconWalk {
+  background: linear-gradient(135deg, #5B8FF9 0%, #2E62D1 100%);
+}
+
+.markerPulse {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12rpx solid transparent;
+  border-right: 12rpx solid transparent;
+  border-top: 16rpx solid currentColor;
+}
+
+.markerLabel {
+  background-color: $color-bg-card;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  white-space: nowrap;
+  margin-top: 4rpx;
+  box-shadow: $shadow-card;
+  max-width: 160rpx;
+  @include text-ellipsis;
+}
+
+.markerSelected .markerLabel {
+  background-color: $color-primary;
+  color: $color-text-white;
+}
+
+.categoryFilter {
+  position: absolute;
+  top: $spacing-md;
+  left: $page-padding;
+  right: $page-padding;
+  display: flex;
+  gap: $spacing-sm;
+  z-index: 30;
+}
+
+.filterChip {
+  @include button-reset;
+  flex: 1;
+  height: 64rpx;
+  padding: 0 $spacing-sm;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  box-shadow: $shadow-float;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.filterChipActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+}
+
+.filterChipIcon {
+  margin-right: 4rpx;
+}
+
+.infoPanel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $color-bg-card;
+  border-top-left-radius: $radius-xl;
+  border-top-right-radius: $radius-xl;
+  padding: $spacing-lg;
+  padding-bottom: calc($spacing-lg + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  z-index: 40;
+  transition: transform $transition-base;
+}
+
+.infoPanelHidden {
+  transform: translateY(100%);
+}
+
+.infoHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+}
+
+.infoIcon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.infoContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.infoTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  margin-bottom: $spacing-xs;
+}
+
+.infoMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.infoRating {
+  font-size: $font-size-sm;
+  color: $color-warning;
+  font-weight: $font-weight-medium;
+}
+
+.infoDistance {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.infoDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis-multi(2);
+  margin-bottom: $spacing-md;
+}
+
+.infoTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.infoActions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.actionBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.actionBtnSecondary {
+  background-color: $color-bg-tag;
+  color: $color-text-secondary;
+}
+
+.actionBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+}
+
+.closeBtn {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+}
+
+.zoomControls {
+  position: absolute;
+  right: $spacing-md;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  z-index: 30;
+}
+
+.zoomBtn {
+  width: 64rpx;
+  height: 64rpx;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  box-shadow: $shadow-float;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.locationBtn {
+  position: absolute;
+  right: $spacing-md;
+  bottom: $spacing-xl * 3;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xl;
+  color: $color-primary;
+  box-shadow: $shadow-float;
+  z-index: 30;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.emptyTip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: $color-text-tertiary;
+  font-size: $font-size-md;
+  z-index: 5;
+}

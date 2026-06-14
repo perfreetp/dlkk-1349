@@ -130,3 +130,15 @@
 .emptyWrapper {
   padding-top: $spacing-xl * 2;
 }
+
+.searchTip {
+  padding: $spacing-sm $page-padding;
+  background-color: rgba(91, 143, 249, 0.1);
+  border-bottom: 1rpx solid rgba(91, 143, 249, 0.2);
+}
+
+.searchTipText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
