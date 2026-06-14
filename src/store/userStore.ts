@@ -1,12 +1,41 @@
 import { create } from 'zustand';
+import Taro from '@tarojs/taro';
 import type { UserCheckIn, UserFavorite, SubmittedLocation, LocationFilter, LocationComment, LocationCategory } from '@/types/location';
 import { mockCheckIns, mockFavorites, mockSubmissions, mockLocations } from '@/data/mockLocations';
+
+const STORAGE_KEYS = {
+  FAVORITES: 'campus_favorites',
+  CHECKINS: 'campus_checkins',
+  COMMENTS: 'campus_comments',
+  LIKED_COMMENTS: 'campus_liked_comments',
+};
+
+const loadFromStorage = <T>(key: string, defaultValue: T): T => {
+  try {
+    const data = Taro.getStorageSync(key);
+    if (data) {
+      return typeof data === 'string' ? JSON.parse(data) : data;
+    }
+  } catch (e) {
+    console.log(`[Store] Storage load error for', key, e);
+  }
+  return defaultValue;
+};
+
+const saveToStorage = <T>(key: string, value: T): void => {
+  try {
+    Taro.setStorageSync(key, JSON.stringify(value));
+  } catch (e) {
+    console.log(`[Store] Storage save error for`, key, e);
+  }
+};
 
 interface UserState {
   checkIns: UserCheckIn[];
   favorites: UserFavorite[];
   submissions: SubmittedLocation[];
   comments: LocationComment[];
+  likedCommentIds: string[];
   filter: LocationFilter;
   searchKeyword: string;
   selectedCategory: LocationCategory | 'all';
@@ -14,9 +43,15 @@ interface UserState {
   toggleFavorite: (locationId: string) => void;
   addCheckIn: (locationId: string, locationName: string) => void;
   addSubmission: (submission: Omit<SubmittedLocation, 'id' | 'submitTime' | 'status'>) => void;
-  addComment: (locationId: string, rating: number, content: string) => LocationComment;
+  addComment: (locationId: string, rating: number, content: string) => LocationComment | null;
+  toggleCommentLike: (commentId: string) => void;
+  isCommentLiked: (commentId: string) => boolean;
+  getCommentLikesCount: (comment: LocationComment) => number;
+  deleteMyComment: (commentId: string) => void;
   getCommentsByLocation: (locationId: string) => LocationComment[];
+  getCommentsByLocationSorted: (locationId: string, sortType: 'latest' | 'useful') => LocationComment[];
   getMyComments: () => LocationComment[];
+  getCommentCountByLocation: (locationId: string) => number;
   setFilter: (filter: LocationFilter) => void;
   resetFilter: () => void;
   setSearchKeyword: (keyword: string) => void;
@@ -24,24 +59,23 @@ interface UserState {
   getFilteredLocations: () => typeof mockLocations;
 }
 
-const initialComments: LocationComment[] = [
-  {
-    id: 'c1',
-    locationId: '1',
-    userId: 'u1',
-    userName: '匿名同学',
-    content: '真的很安静，插座也够，考研复习的好地方！',
-    rating: 5,
-    createTime: '2024-01-10',
-    likes: 23,
-  },
-];
+const persistedComments = loadFromStorage<LocationComment[]>(STORAGE_KEYS.COMMENTS, []);
+const persistedFavorites = loadFromStorage<UserFavorite[]>(STORAGE_KEYS.FAVORITES, []);
+const persistedCheckIns = loadFromStorage<UserCheckIn[]>(STORAGE_KEYS.CHECKINS, []);
+const persistedLikedComments = loadFromStorage<string[]>(STORAGE_KEYS.LIKED_COMMENTS, []);
+
+const allFavorites = [...persistedFavorites, ...mockFavorites.filter(
+  mf => !persistedFavorites.some(pf => pf.locationId === mf.locationId)
+)];
+const allCheckIns = [...persistedCheckIns, ...mockCheckIns];
+const allComments = persistedComments;
 
 export const useUserStore = create<UserState>((set, get) => ({
-  checkIns: mockCheckIns,
-  favorites: mockFavorites,
+  checkIns: allCheckIns,
+  favorites: allFavorites,
   submissions: mockSubmissions,
-  comments: initialComments,
+  comments: allComments,
+  likedCommentIds: persistedLikedComments,
   filter: {},
   searchKeyword: '',
   selectedCategory: 'all',
@@ -53,22 +87,21 @@ export const useUserStore = create<UserState>((set, get) => ({
   toggleFavorite: (locationId: string) => {
     const { favorites } = get();
     const exists = favorites.find(f => f.locationId === locationId);
+    let newFavorites: UserFavorite[];
     if (exists) {
-      set({
-        favorites: favorites.filter(f => f.locationId !== locationId),
-      });
+      newFavorites = favorites.filter(f => f.locationId !== locationId);
     } else {
-      set({
-        favorites: [
-          ...favorites,
-          {
-            id: `f${Date.now()}`,
-            locationId,
-            addTime: new Date().toISOString().split('T')[0],
-          },
-        ],
-      });
+      newFavorites = [
+        ...favorites,
+        {
+          id: `f${Date.now()}`,
+          locationId,
+          addTime: new Date().toISOString().split('T')[0],
+        },
+      ];
     }
+    set({ favorites: newFavorites });
+    saveToStorage(STORAGE_KEYS.FAVORITES, newFavorites);
     console.log('[UserStore] toggleFavorite:', { locationId, isFavorite: !exists });
   },
 
@@ -80,9 +113,9 @@ export const useUserStore = create<UserState>((set, get) => ({
       checkInTime: new Date().toLocaleString('zh-CN'),
       stampUrl: `https://picsum.photos/id/${100 + Math.floor(Math.random() * 50)}/200/200`,
     };
-    set(state => ({
-      checkIns: [newCheckIn, ...state.checkIns],
-    }));
+    const newCheckIns = [newCheckIn, ...get().checkIns];
+    set({ checkIns: newCheckIns });
+    saveToStorage(STORAGE_KEYS.CHECKINS, newCheckIns);
     console.log('[UserStore] addCheckIn:', newCheckIn);
   },
 
@@ -100,22 +133,62 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   addComment: (locationId: string, rating: number, content: string) => {
+    const trimmedContent = content.trim();
+    const existingComment = get().comments.find(
+      c => c.isMine && c.locationId === locationId && c.content === trimmedContent
+    );
+    if (existingComment) {
+      console.log('[UserStore] Duplicate comment skipped, found:', existingComment.id);
+      Taro.showToast({ title: '这条评价已经发过啦', icon: 'none' });
+      return null;
+    }
+
     const newComment: LocationComment = {
       id: `c${Date.now()}`,
       locationId,
       userId: 'me',
       userName: '我',
-      content,
+      content: trimmedContent,
       rating,
       createTime: new Date().toLocaleDateString('zh-CN'),
       likes: 0,
       isMine: true,
     };
-    set(state => ({
-      comments: [newComment, ...state.comments],
-    }));
+    const newComments = [newComment, ...get().comments];
+    set({ comments: newComments });
+    saveToStorage(STORAGE_KEYS.COMMENTS, newComments);
     console.log('[UserStore] addComment:', newComment);
     return newComment;
+  },
+
+  toggleCommentLike: (commentId: string) => {
+    const { likedCommentIds } = get();
+    let newLikedIds: string[];
+    if (likedCommentIds.includes(commentId)) {
+      newLikedIds = likedCommentIds.filter(id => id !== commentId);
+    } else {
+      newLikedIds = [...likedCommentIds, commentId];
+    }
+    set({ likedCommentIds: newLikedIds });
+    saveToStorage(STORAGE_KEYS.LIKED_COMMENTS, newLikedIds);
+    console.log('[UserStore] toggleCommentLike:', { commentId, liked: !likedCommentIds.includes(commentId) });
+  },
+
+  isCommentLiked: (commentId: string) => {
+    return get().likedCommentIds.includes(commentId);
+  },
+
+  getCommentLikesCount: (comment: LocationComment) => {
+    const baseLikes = comment.likes || 0;
+    const extraLiked = get().likedCommentIds.includes(comment.id) ? 1 : 0;
+    return baseLikes + extraLiked;
+  },
+
+  deleteMyComment: (commentId: string) => {
+    const newComments = get().comments.filter(c => c.id !== commentId);
+    set({ comments: newComments });
+    saveToStorage(STORAGE_KEYS.COMMENTS, newComments);
+    console.log('[UserStore] deleteMyComment:', commentId);
   },
 
   getCommentsByLocation: (locationId: string) => {
@@ -125,8 +198,24 @@ export const useUserStore = create<UserState>((set, get) => ({
     return [...userComments, ...mockComments];
   },
 
+  getCommentsByLocationSorted: (locationId: string, sortType: 'latest' | 'useful') => {
+    const comments = get().getCommentsByLocation(locationId);
+    if (sortType === 'useful') {
+      return [...comments].sort((a, b) => {
+        const likesA = get().getCommentLikesCount(a);
+        const likesB = get().getCommentLikesCount(b);
+        return likesB - likesA;
+      });
+    }
+    return comments;
+  },
+
   getMyComments: () => {
     return get().comments.filter(c => c.isMine);
+  },
+
+  getCommentCountByLocation: (locationId: string) => {
+    return get().getCommentsByLocation(locationId).length;
   },
 
   setFilter: (filter: LocationFilter) => {

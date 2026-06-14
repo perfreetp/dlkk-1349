@@ -285,6 +285,55 @@
   margin-right: 4rpx;
 }
 
+.deleteCommentBtn {
+  font-size: $font-size-xs;
+  color: $color-error;
+  margin-left: auto;
+  padding: $spacing-xs $spacing-sm;
+}
+
+.commentsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sortTabs {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.sortTab {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-button;
+  background-color: $color-bg-tag;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.sortTabActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.showMoreBtn {
+  background-color: $color-bg-hover;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+
+  &:active {
+    background-color: $color-border;
+  }
+}
+
 .addCommentBtn {
   @include button-reset;
   width: 100%;

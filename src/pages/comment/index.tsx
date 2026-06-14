@@ -15,6 +15,7 @@ const CommentPage: React.FC = () => {
 
   const addComment = useUserStore(state => state.addComment);
   const getMyComments = useUserStore(state => state.getMyComments);
+  const deleteMyComment = useUserStore(state => state.deleteMyComment);
 
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState('');
@@ -98,7 +99,9 @@ const CommentPage: React.FC = () => {
       content: '确定要删除这条评价吗？',
       success: (res) => {
         if (res.confirm) {
+          deleteMyComment(commentId);
           Taro.showToast({ title: '删除成功', icon: 'none' });
+          forceUpdate(prev => prev + 1);
           console.log('[CommentPage] Delete comment:', commentId);
         }
       },

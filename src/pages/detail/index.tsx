@@ -3,7 +3,7 @@ import { View, Text, Swiper, SwiperItem, Image, Button, ScrollView } from '@taro
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { mockLocations } from '@/data/mockLocations';
-import type { Location } from '@/types/location';
+import type { Location, LocationComment } from '@/types/location';
 import {
   formatDistance,
   formatCrowdLevel,
@@ -17,6 +17,8 @@ import Empty from '@/components/Empty';
 import { useUserStore } from '@/store/userStore';
 import styles from './index.module.scss';
 
+const COMMENT_PREVIEW_COUNT = 3;
+
 const DetailPage: React.FC = () => {
   const router = useRouter();
   const locationId = router.params.id;
@@ -25,20 +27,30 @@ const DetailPage: React.FC = () => {
     return mockLocations.find((loc) => loc.id === locationId) as Location;
   }, [locationId]);
 
-  const isFavorite = useUserStore((state) => state.isFavorite);
-  const toggleFavorite = useUserStore((state) => state.toggleFavorite);
-  const addCheckIn = useUserStore((state) => state.addCheckIn);
-  const getCommentsByLocation = useUserStore((state) => state.getCommentsByLocation);
+  const isFavorite = useUserStore(state => state.isFavorite);
+  const toggleFavorite = useUserStore(state => state.toggleFavorite);
+  const addCheckIn = useUserStore(state => state.addCheckIn);
+  const getCommentsByLocationSorted = useUserStore(state => state.getCommentsByLocationSorted);
+  const getCommentCountByLocation = useUserStore(state => state.getCommentCountByLocation);
+  const toggleCommentLike = useUserStore(state => state.toggleCommentLike);
+  const isCommentLiked = useUserStore(state => state.isCommentLiked);
+  const getCommentLikesCount = useUserStore(state => state.getCommentLikesCount);
+  const deleteMyComment = useUserStore(state => state.deleteMyComment);
 
-  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
+  const [commentSort, setCommentSort] = useState<'latest' | 'useful'>('latest');
+  const [showAllComments, setShowAllComments] = useState(false);
   const [, forceUpdate] = useState(0);
 
   useDidShow(() => {
     forceUpdate(prev => prev + 1);
+    setShowAllComments(false);
     console.log('[DetailPage] Page did show, refresh comments');
   });
 
-  const comments = location ? getCommentsByLocation(location.id) : [];
+  const allComments = location ? getCommentsByLocationSorted(location.id, commentSort) : [];
+  const totalCommentCount = location ? getCommentCountByLocation(location.id) : 0;
+  const displayComments = showAllComments ? allComments : allComments.slice(0, COMMENT_PREVIEW_COUNT);
+  const hasMoreComments = allComments.length > COMMENT_PREVIEW_COUNT;
 
   if (!location) {
     return (
@@ -96,15 +108,30 @@ const DetailPage: React.FC = () => {
   };
 
   const handleCommentLike = (commentId: string) => {
-    setLikedComments((prev) => {
-      const next = new Set(prev);
-      if (next.has(commentId)) {
-        next.delete(commentId);
-      } else {
-        next.add(commentId);
-      }
-      return next;
+    toggleCommentLike(commentId);
+    forceUpdate(prev => prev + 1);
+  };
+
+  const handleDeleteMyComment = (comment: LocationComment) => {
+    if (!comment.isMine) return;
+    Taro.showModal({
+      title: '删除评价',
+      content: '确定要删除这条评价吗？',
+      success: (res) => {
+        if (res.confirm) {
+          deleteMyComment(comment.id);
+          Taro.showToast({ title: '删除成功', icon: 'none' });
+          forceUpdate(prev => prev + 1);
+          console.log('[DetailPage] Delete comment:', comment.id);
+        }
+      },
     });
+  };
+
+  const handleSortChange = (sort: 'latest' | 'useful') => {
+    setCommentSort(sort);
+    setShowAllComments(false);
+    console.log('[DetailPage] Comment sort changed:', sort);
   };
 
   const isFav = isFavorite(location.id);
@@ -146,7 +173,7 @@ const DetailPage: React.FC = () => {
               <Text className={styles.ratingStars}>
                 {'⭐'.repeat(Math.round(location.rating))}
               </Text>
-              <Text className={styles.reviewCount}>({location.reviewCount}条评价)</Text>
+              <Text className={styles.reviewCount}>({totalCommentCount}条评价)</Text>
             </View>
 
             <View className={styles.tagsRow}>
@@ -233,39 +260,86 @@ const DetailPage: React.FC = () => {
           </View>
 
           <View className={styles.commentsSection}>
-            <Text className={styles.sectionTitle}>💬 同学评价 ({comments.length})</Text>
-            {comments.length > 0 ? (
-              comments.map((comment) => (
-                <View key={comment.id} className={styles.commentItem}>
-                  <View className={styles.commentHeader}>
-                    <View className={styles.avatar}>
-                      <Text>{comment.isMine ? '�' : '�🙂'}</Text>
-                    </View>
-                    <View className={styles.userInfo}>
-                      <Text className={styles.userName}>
-                        {comment.userName}
-                        {comment.isMine && <Text className={styles.mineBadge}> (我)</Text>}
-                      </Text>
-                      <Text className={styles.commentTime}>{comment.createTime}</Text>
-                    </View>
-                    <Text className={styles.commentRating}>
-                      {'⭐'.repeat(comment.rating)}
-                    </Text>
-                  </View>
-                  <Text className={styles.commentContent}>{comment.content}</Text>
-                  <View className={styles.commentFooter}>
-                    <View
-                      className={styles.likeBtn}
-                      onClick={() => handleCommentLike(comment.id)}
-                    >
-                      <Text className={styles.likeIcon}>
-                        {likedComments.has(comment.id) ? '❤️' : '🤍'}
-                      </Text>
-                      <Text>{comment.likes + (likedComments.has(comment.id) ? 1 : 0)}</Text>
-                    </View>
-                  </View>
+            <View className={styles.commentsHeader}>
+              <Text className={styles.sectionTitle}>💬 同学评价 ({totalCommentCount})</Text>
+              {totalCommentCount > 0 && (
+                <View className={styles.sortTabs}>
+                  <Text
+                    className={classnames(
+                      styles.sortTab,
+                      commentSort === 'latest' && styles.sortTabActive
+                    )}
+                    onClick={() => handleSortChange('latest')}
+                  >
+                    最新
+                  </Text>
+                  <Text
+                    className={classnames(
+                      styles.sortTab,
+                      commentSort === 'useful' && styles.sortTabActive
+                    )}
+                    onClick={() => handleSortChange('useful')}
+                  >
+                    最有用
+                  </Text>
                 </View>
-              ))
+              )}
+            </View>
+
+            {displayComments.length > 0 ? (
+              <>
+                {displayComments.map((comment) => (
+                  <View key={comment.id} className={styles.commentItem}>
+                    <View className={styles.commentHeader}>
+                      <View className={styles.avatar}>
+                        <Text>{comment.isMine ? '😊' : '🙂'}</Text>
+                      </View>
+                      <View className={styles.userInfo}>
+                        <Text className={styles.userName}>
+                          {comment.userName}
+                          {comment.isMine && <Text className={styles.mineBadge}> (我)</Text>}
+                        </Text>
+                        <Text className={styles.commentTime}>{comment.createTime}</Text>
+                      </View>
+                      <Text className={styles.commentRating}>
+                        {'⭐'.repeat(comment.rating)}
+                      </Text>
+                    </View>
+                    <Text className={styles.commentContent}>{comment.content}</Text>
+                    <View className={styles.commentFooter}>
+                      <View
+                        className={styles.likeBtn}
+                        onClick={() => handleCommentLike(comment.id)}
+                      >
+                        <Text className={styles.likeIcon}>
+                          {isCommentLiked(comment.id) ? '❤️' : '🤍'}
+                        </Text>
+                        <Text>{getCommentLikesCount(comment)}</Text>
+                      </View>
+                      {comment.isMine && (
+                        <Text
+                          className={styles.deleteCommentBtn}
+                          onClick={() => handleDeleteMyComment(comment)}
+                        >
+                          删除
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+
+                {hasMoreComments && (
+                  <Button
+                    className={classnames(
+                      styles.addCommentBtn,
+                      styles.showMoreBtn
+                    )}
+                    onClick={() => setShowAllComments(true)}
+                  >
+                    {showAllComments ? '收起评价' : `查看全部 ${allComments.length} 条评价 ↓`}
+                  </Button>
+                )}
+              </>
             ) : (
               <Empty text="暂无评价，快来抢沙发吧" icon="💬" />
             )}
@@ -273,7 +347,7 @@ const DetailPage: React.FC = () => {
               className={styles.addCommentBtn}
               onClick={() => Taro.navigateTo({ url: `/pages/comment/index?id=${location.id}` })}
             >
-              写评价
+              ✍️ 写评价
             </Button>
           </View>
         </View>

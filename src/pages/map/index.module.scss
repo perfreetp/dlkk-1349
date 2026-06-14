@@ -143,7 +143,7 @@
 
 .categoryFilter {
   position: absolute;
-  top: $spacing-md;
+  top: 112rpx;
   left: $page-padding;
   right: $page-padding;
   display: flex;
@@ -362,4 +362,239 @@
   color: $color-text-tertiary;
   font-size: $font-size-md;
   z-index: 5;
+}
+
+.searchBarWrapper {
+  position: absolute;
+  top: $spacing-md;
+  left: $page-padding;
+  right: $page-padding;
+  z-index: 35;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  height: 72rpx;
+  background-color: rgba(255, 255, 255, 0.98);
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  box-shadow: $shadow-float;
+  position: relative;
+  z-index: 1;
+}
+
+.searchIcon {
+  font-size: 28rpx;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  height: 100%;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  min-width: 0;
+}
+
+.searchPlaceholder {
+  color: $color-text-placeholder;
+  font-size: $font-size-sm;
+}
+
+.searchClear {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.searchResults {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  margin-top: $spacing-xs;
+  overflow: hidden;
+}
+
+.searchResultsScroll {
+  max-height: 500rpx;
+}
+
+.searchResultItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border-bottom: 2rpx solid $color-bg-page;
+  transition: all $transition-base;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background-color: $color-bg-hover;
+  }
+}
+
+.searchResultIcon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: $color-text-white;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.searchResultIcon.markerIconStudy {
+  background: linear-gradient(135deg, #5AD8A6 0%, #2BB673 100%);
+}
+
+.searchResultIcon.markerIconFood {
+  background: linear-gradient(135deg, #F6BD16 0%, #E6A800 100%);
+}
+
+.searchResultIcon.markerIconActivity {
+  background: linear-gradient(135deg, #E86452 0%, #D63031 100%);
+}
+
+.searchResultIcon.markerIconWalk {
+  background: linear-gradient(135deg, #5B8FF9 0%, #2E62D1 100%);
+}
+
+.searchResultInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.searchResultName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+  margin-bottom: 4rpx;
+  display: block;
+}
+
+.searchResultAddr {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  @include text-ellipsis;
+  display: block;
+}
+
+.searchResultActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.searchResultFav,
+.searchResultNav {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  background-color: $color-bg-hover;
+  border-radius: $radius-round;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+    background-color: $color-border;
+  }
+}
+
+.searchEmpty {
+  padding: $spacing-xl 0;
+}
+
+.markerFavBadge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  width: 28rpx;
+  height: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18rpx;
+  z-index: 2;
+}
+
+.favBtn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  background-color: $color-bg-hover;
+  border-radius: $radius-round;
+  margin-left: $spacing-md;
+  flex-shrink: 0;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.favBtnActive {
+  background-color: rgba(232, 100, 82, 0.1);
+}
+
+.infoExtra {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.infoExtraItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.infoExtraLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.infoExtraValue {
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.infoValueGreen {
+  color: $color-success;
+}
+
+.infoCrowd {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.actionBtnSecondaryAlt {
+  background-color: rgba(232, 100, 82, 0.1);
+  color: $color-error;
 }

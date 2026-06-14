@@ -1,17 +1,27 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, Button } from '@tarojs/components';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, Text, Button, Input, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import { mockLocations } from '@/data/mockLocations';
 import type { Location, LocationCategory } from '@/types/location';
-import { formatDistance, getCategoryColor, formatCategory } from '@/utils/distance';
+import { formatDistance, getCategoryColor, formatCategory, formatCrowdLevel, formatBudget, formatBusinessStatus } from '@/utils/distance';
 import Tag from '@/components/Tag';
+import Empty from '@/components/Empty';
+import { useUserStore } from '@/store/userStore';
 import styles from './index.module.scss';
 
+type FilterCategory = LocationCategory | 'all';
+
 const MapPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<LocationCategory | 'all'>('all');
+  const [category, setCategory] = useState<FilterCategory>('all');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  const isFavorite = useUserStore(state => state.isFavorite);
+  const toggleFavorite = useUserStore(state => state.toggleFavorite);
+  const [, forceUpdate] = useState(0);
 
   const categories = [
     { key: 'all' as const, name: '全部', icon: '🌟' },
@@ -22,9 +32,24 @@ const MapPage: React.FC = () => {
   ];
 
   const filteredLocations = useMemo(() => {
-    if (selectedCategory === 'all') return mockLocations;
-    return mockLocations.filter(loc => loc.category === selectedCategory);
-  }, [selectedCategory]);
+    let result = [...mockLocations];
+
+    if (category !== 'all') {
+      result = result.filter(loc => loc.category === category);
+    }
+
+    if (searchText.trim()) {
+      const keyword = searchText.toLowerCase();
+      result = result.filter(loc =>
+        loc.name.toLowerCase().includes(keyword) ||
+        loc.description.toLowerCase().includes(keyword) ||
+        loc.address.toLowerCase().includes(keyword) ||
+        loc.tags.some(tag => tag.name.toLowerCase().includes(keyword))
+      );
+    }
+
+    return result;
+  }, [category, searchText]);
 
   const getMarkerPosition = (location: Location) => {
     const positions: Record<string, { x: number; y: number }> = {
@@ -42,24 +67,34 @@ const MapPage: React.FC = () => {
     return positions[location.id] || { x: 50, y: 50 };
   };
 
-  const getMarkerIconClass = (category: LocationCategory) => {
+  const getMarkerIconClass = (cat: LocationCategory) => {
     const map: Record<string, string> = {
       study: styles.markerIconStudy,
       food: styles.markerIconFood,
       activity: styles.markerIconActivity,
       walk: styles.markerIconWalk,
     };
-    return map[category] || '';
+    return map[cat] || '';
   };
 
-  const getCategoryEmoji = (category: LocationCategory) => {
+  const getCategoryEmoji = (cat: LocationCategory) => {
     const map: Record<string, string> = {
       study: '📚',
       food: '🍜',
       activity: '🎉',
       walk: '🚶',
     };
-    return map[category] || '📍';
+    return map[cat] || '📍';
+  };
+
+  const getTagType = (cat: LocationCategory) => {
+    const map: Record<string, 'green' | 'yellow' | 'orange' | 'primary'> = {
+      study: 'green',
+      food: 'yellow',
+      activity: 'orange',
+      walk: 'primary',
+    };
+    return map[cat] || 'primary';
   };
 
   const handleMarkerClick = (location: Location) => {
@@ -79,16 +114,17 @@ const MapPage: React.FC = () => {
     }
   };
 
-  const handleNavigate = () => {
-    if (selectedLocation) {
+  const handleNavigate = (loc?: Location) => {
+    const target = loc || selectedLocation;
+    if (target) {
       Taro.openLocation({
-        latitude: selectedLocation.latitude,
-        longitude: selectedLocation.longitude,
-        name: selectedLocation.name,
-        address: selectedLocation.address,
+        latitude: target.latitude,
+        longitude: target.longitude,
+        name: target.name,
+        address: target.address,
         scale: 18,
       });
-      console.log('[MapPage] Navigate to:', selectedLocation.name);
+      console.log('[MapPage] Navigate to:', target.name);
     }
   };
 
@@ -97,14 +133,27 @@ const MapPage: React.FC = () => {
     console.log('[MapPage] Location button clicked');
   };
 
-  const getTagType = (category: LocationCategory) => {
-    const map: Record<string, 'green' | 'yellow' | 'orange' | 'primary'> = {
-      study: 'green',
-      food: 'yellow',
-      activity: 'orange',
-      walk: 'primary',
-    };
-    return map[category] || 'primary';
+  const handleToggleFavorite = (loc?: Location) => {
+    const target = loc || selectedLocation;
+    if (!target) return;
+    toggleFavorite(target.id);
+    const newState = !isFavorite(target.id);
+    Taro.showToast({
+      title: newState ? '已加入收藏' : '已取消收藏',
+      icon: 'none',
+    });
+    forceUpdate(prev => prev + 1);
+    console.log('[MapPage] Toggle favorite:', { locationId: target.id, newState });
+  };
+
+  const handleSearchConfirm = () => {
+    console.log('[MapPage] Search confirmed:', searchText);
+    setSearchFocused(false);
+  };
+
+  const handleSearchClear = () => {
+    setSearchText('');
+    console.log('[MapPage] Search cleared');
   };
 
   const generateGridCells = () => {
@@ -133,6 +182,20 @@ const MapPage: React.FC = () => {
     return cells;
   };
 
+  const handleSearchResultClick = (location: Location) => {
+    setSelectedLocation(location);
+    setSearchFocused(false);
+    setSearchText(location.name);
+  };
+
+  const searchResults = useMemo(() => {
+    if (!searchFocused && !searchText.trim()) return [];
+    return filteredLocations.slice(0, 8);
+  }, [filteredLocations, searchFocused, searchText]);
+
+  const selLoc = selectedLocation;
+  const selIsFav = selLoc ? isFavorite(selLoc.id) : false;
+
   return (
     <View className={styles.page}>
       <View className={styles.mapContainer}>
@@ -142,13 +205,111 @@ const MapPage: React.FC = () => {
           </View>
         </View>
 
+        <View className={styles.searchBarWrapper}>
+          <View className={styles.searchBar}>
+            <Text className={styles.searchIcon}>🔍</Text>
+            <Input
+              className={styles.searchInput}
+              placeholder="搜索地点、标签..."
+              placeholderClass={styles.searchPlaceholder}
+              value={searchText}
+              onInput={(e) => setSearchText(e.detail.value)}
+              onConfirm={handleSearchConfirm}
+              onFocus={() => setSearchFocused(true)}
+            />
+            {searchText && (
+              <View className={styles.searchClear} onClick={handleSearchClear}>
+                <Text>✕</Text>
+              </View>
+            )}
+          </View>
+
+          {searchFocused && (
+            <View className={styles.searchResults}>
+              <ScrollView scrollY className={styles.searchResultsScroll}>
+                {searchResults.length > 0 ? (
+                  searchResults.map((loc) => {
+                    const pos = getMarkerPosition(loc);
+                    return (
+                      <View
+                        key={loc.id}
+                        className={styles.searchResultItem}
+                        onClick={() => handleSearchResultClick(loc)}
+                      >
+                        <View
+                          className={classnames(
+                            styles.searchResultIcon,
+                            getMarkerIconClass(loc.category)
+                          )}
+                        >
+                          <Text>{getCategoryEmoji(loc.category)}</Text>
+                        </View>
+                        <View className={styles.searchResultInfo}>
+                          <Text className={styles.searchResultName}>{loc.name}</Text>
+                          <Text className={styles.searchResultAddr}>
+                            {loc.address} · {formatDistance(loc.distance)}
+                          </Text>
+                        </View>
+                        <View className={styles.searchResultActions}>
+                          <View
+                            className={styles.searchResultFav}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleFavorite(loc);
+                            }}
+                          >
+                            <Text>{isFavorite(loc.id) ? '❤️' : '🤍'}</Text>
+                          </View>
+                          <View
+                            className={styles.searchResultNav}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleNavigate(loc);
+                            }}
+                          >
+                            <Text>🧭</Text>
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  })
+                ) : searchText.trim() ? (
+                  <View className={styles.searchEmpty}>
+                    <Empty text="未找到匹配地点" icon="🔍" />
+                  </View>
+                ) : null}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+
+        <View className={styles.categoryFilter}>
+          {categories.map((cat) => (
+            <Button
+              key={cat.key}
+              className={classnames(
+                styles.filterChip,
+                category === cat.key && styles.filterChipActive
+              )}
+              onClick={() => {
+                setCategory(cat.key);
+                setSelectedLocation(null);
+              }}
+            >
+              <Text className={styles.filterChipIcon}>{cat.icon}</Text>
+              <Text>{cat.name}</Text>
+            </Button>
+          ))}
+        </View>
+
         {filteredLocations.length === 0 && (
-          <Text className={styles.emptyTip}>该分类暂无地点</Text>
+          <Text className={styles.emptyTip}>该条件下暂无地点</Text>
         )}
 
         {filteredLocations.map((location) => {
           const pos = getMarkerPosition(location);
-          const isSelected = selectedLocation?.id === location.id;
+          const isSelected = selLoc?.id === location.id;
+          const isFav = isFavorite(location.id);
           return (
             <View
               key={location.id}
@@ -172,6 +333,11 @@ const MapPage: React.FC = () => {
                 >
                   <Text>{getCategoryEmoji(location.category)}</Text>
                 </View>
+                {isFav && (
+                  <View className={styles.markerFavBadge}>
+                    <Text>❤️</Text>
+                  </View>
+                )}
                 <View
                   className={styles.markerPulse}
                   style={{ color: getCategoryColor(location.category) }}
@@ -185,25 +351,6 @@ const MapPage: React.FC = () => {
             </View>
           );
         })}
-
-        <View className={styles.categoryFilter}>
-          {categories.map((cat) => (
-            <Button
-              key={cat.key}
-              className={classnames(
-                styles.filterChip,
-                selectedCategory === cat.key && styles.filterChipActive
-              )}
-              onClick={() => {
-                setSelectedCategory(cat.key);
-                setSelectedLocation(null);
-              }}
-            >
-              <Text className={styles.filterChipIcon}>{cat.icon}</Text>
-              <Text>{cat.name}</Text>
-            </Button>
-          ))}
-        </View>
 
         <View className={styles.zoomControls}>
           <View
@@ -230,10 +377,10 @@ const MapPage: React.FC = () => {
         <View
           className={classnames(
             styles.infoPanel,
-            !selectedLocation && styles.infoPanelHidden
+            !selLoc && styles.infoPanelHidden
           )}
         >
-          {selectedLocation && (
+          {selLoc && (
             <View>
               <View
                 className={styles.closeBtn}
@@ -244,43 +391,88 @@ const MapPage: React.FC = () => {
               <View className={styles.infoHeader}>
                 <View
                   className={styles.infoIcon}
-                  style={{ backgroundColor: `${getCategoryColor(selectedLocation.category)}20` }}
+                  style={{ backgroundColor: `${getCategoryColor(selLoc.category)}20` }}
                 >
-                  <Text>{getCategoryEmoji(selectedLocation.category)}</Text>
+                  <Text>{getCategoryEmoji(selLoc.category)}</Text>
                 </View>
                 <View className={styles.infoContent}>
-                  <Text className={styles.infoTitle}>{selectedLocation.name}</Text>
+                  <Text className={styles.infoTitle}>{selLoc.name}</Text>
                   <View className={styles.infoMeta}>
-                    <Text className={styles.infoRating}>⭐ {selectedLocation.rating}</Text>
-                    <Text className={styles.infoDistance}>
-                      📍 {formatDistance(selectedLocation.distance)}
-                    </Text>
+                    <Text className={styles.infoRating}>⭐ {selLoc.rating}</Text>
+                    <Text className={styles.infoDistance}>📍 {formatDistance(selLoc.distance)}</Text>
+                    <Text className={styles.infoCrowd}>👥 {formatCrowdLevel(selLoc.crowdLevel)}</Text>
                   </View>
-                  <Text className={styles.infoDesc}>{selectedLocation.description}</Text>
-                  <View className={styles.infoTags}>
-                    <Tag
-                      text={formatCategory(selectedLocation.category)}
-                      type={getTagType(selectedLocation.category)}
-                    />
-                    {selectedLocation.tags.slice(0, 3).map(tag => (
-                      <Tag key={tag.id} text={tag.name} type="default" />
-                    ))}
-                  </View>
-                  <View className={styles.infoActions}>
-                    <Button
-                      className={classnames(styles.actionBtn, styles.actionBtnSecondary)}
-                      onClick={handleNavigate}
-                    >
-                      🗺️ 导航
-                    </Button>
-                    <Button
-                      className={classnames(styles.actionBtn, styles.actionBtnPrimary)}
-                      onClick={handleViewDetail}
-                    >
-                      查看详情
-                    </Button>
-                  </View>
+                  <Text className={styles.infoDesc}>{selLoc.description}</Text>
                 </View>
+                <View
+                  className={classnames(styles.favBtn, selIsFav && styles.favBtnActive)}
+                  onClick={() => handleToggleFavorite()}
+                >
+                  <Text>{selIsFav ? '❤️' : '🤍'}</Text>
+                </View>
+              </View>
+
+              <View className={styles.infoExtra}>
+                <View className={styles.infoExtraItem}>
+                  <Text className={styles.infoExtraLabel}>营业状态</Text>
+                  <Text className={classnames(
+                    styles.infoExtraValue,
+                    selLoc.businessStatus === 'open' && styles.infoValueGreen
+                  )}>
+                    {formatBusinessStatus(selLoc.businessStatus)}
+                  </Text>
+                </View>
+                <View className={styles.infoExtraItem}>
+                  <Text className={styles.infoExtraLabel}>营业时间</Text>
+                  <Text className={styles.infoExtraValue}>{selLoc.businessHours}</Text>
+                </View>
+                <View className={styles.infoExtraItem}>
+                  <Text className={styles.infoExtraLabel}>人均消费</Text>
+                  <Text className={styles.infoExtraValue}>{formatBudget(selLoc.budget)}</Text>
+                </View>
+                <View className={styles.infoExtraItem}>
+                  <Text className={styles.infoExtraLabel}>插座情况</Text>
+                  <Text className={classnames(
+                    styles.infoExtraValue,
+                    selLoc.socketAvailable && styles.infoValueGreen
+                  )}>
+                    {selLoc.socketAvailable ? '有插座' : '无插座'}
+                  </Text>
+                </View>
+              </View>
+
+              <View className={styles.infoTags}>
+                <Tag
+                  text={formatCategory(selLoc.category)}
+                  type={getTagType(selLoc.category)}
+                />
+                {selLoc.tags.slice(0, 3).map(tag => (
+                  <Tag key={tag.id} text={tag.name} type="default" />
+                ))}
+              </View>
+
+              <View className={styles.infoActions}>
+                <Button
+                  className={classnames(styles.actionBtn, styles.actionBtnSecondary)}
+                  onClick={() => handleNavigate()}
+                >
+                  🧭 导航
+                </Button>
+                <Button
+                  className={classnames(
+                    styles.actionBtn,
+                    styles.actionBtnSecondaryAlt
+                  )}
+                  onClick={() => handleToggleFavorite()}
+                >
+                  {selIsFav ? '❤️ 已收藏' : '🤍 收藏'}
+                </Button>
+                <Button
+                  className={classnames(styles.actionBtn, styles.actionBtnPrimary)}
+                  onClick={handleViewDetail}
+                >
+                  查看详情 →
+                </Button>
               </View>
             </View>
           )}

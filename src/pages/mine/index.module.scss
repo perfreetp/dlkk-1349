@@ -309,3 +309,189 @@
   color: $color-text-tertiary;
   font-size: $font-size-sm;
 }
+
+.emptyTip {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+  text-align: center;
+}
+
+.interactionHeader {
+  margin-bottom: $spacing-md;
+}
+
+.interactionTabs {
+  display: flex;
+  background-color: $color-bg-tag;
+  border-radius: $radius-button;
+  padding: $spacing-xs;
+}
+
+.interactionTab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm;
+  border-radius: $radius-button;
+  transition: all $transition-base;
+  position: relative;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.interactionTabActive {
+  background-color: $color-bg-card;
+  box-shadow: $shadow-card;
+}
+
+.interactionTabIcon {
+  font-size: 32rpx;
+  margin-bottom: 4rpx;
+}
+
+.interactionTabName {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.interactionTabActive .interactionTabName {
+  color: $color-primary;
+}
+
+.interactionTabCount {
+  position: absolute;
+  top: 4rpx;
+  right: 8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  background-color: $color-primary;
+  color: $color-text-white;
+  font-size: 20rpx;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.interactionList {
+  padding-top: $spacing-sm;
+}
+
+.interactionItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg;
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    opacity: 0.9;
+  }
+}
+
+.interactionItemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.interactionItemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.interactionItemCategory {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  padding: 4rpx $spacing-sm;
+  background-color: rgba(91, 143, 249, 0.1);
+  border-radius: $radius-xs;
+}
+
+.interactionItemLocation {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.interactionItemDistance {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.interactionItemRating {
+  font-size: $font-size-xs;
+  color: $color-warning;
+}
+
+.interactionItemName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin-bottom: 4rpx;
+  @include text-ellipsis;
+}
+
+.interactionItemTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.interactionItemDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis-multi(2);
+}
+
+.removeFavoriteBtn {
+  padding: $spacing-sm;
+  font-size: $font-size-xs;
+  color: $color-primary;
+  flex-shrink: 0;
+}
+
+.deleteBtn {
+  padding: $spacing-sm;
+  font-size: $font-size-xs;
+  color: $color-error;
+  flex-shrink: 0;
+}
+
+.checkinThumbnail {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: $radius-md;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.viewMoreBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-md;
+  background-color: $color-bg-tag;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-top: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    background-color: $color-border;
+  }
+}
